@@ -72,6 +72,15 @@ All colors MUST be HSL.
 
   --profit: 142 65% 35%;              /* Verde moderado */
   --loss: 0 80% 50%;                  /* Rojo moderado */
+  
+  /* Variables personalizables por usuario */
+  --profit-color: #28a745;            /* Color de ganancia personalizable */
+  --loss-color: #dc3545;              /* Color de pérdida personalizable */
+  --chart-color: #28a745;             /* Color de gráficos personalizable */
+  
+  /* Variables de contraste automático para calendario */
+  --calendar-profit-text-color: #000000;  /* Texto para fondo de ganancia */
+  --calendar-loss-text-color: #FFFFFF;    /* Texto para fondo de pérdida */
 
   --border: 240 5% 88%;               /* Bordes suaves */
   --input: 240 5% 88%;
@@ -133,6 +142,15 @@ All colors MUST be HSL.
 
   --profit: 142 70% 35%;          /* Verde oscuro para ganancias */
   --loss: 0 84% 40%;              /* Rojo para pérdidas */
+  
+  /* Variables personalizables por usuario */
+  --profit-color: #28a745;        /* Color de ganancia personalizable */
+  --loss-color: #dc3545;          /* Color de pérdida personalizable */
+  --chart-color: #28a745;         /* Color de gráficos personalizable */
+  
+  /* Variables de contraste automático para calendario */
+  --calendar-profit-text-color: #000000;  /* Texto para fondo de ganancia */
+  --calendar-loss-text-color: #FFFFFF;    /* Texto para fondo de pérdida */
 
   --border: 0 0% 11%;             /* Bordes sutiles */
   --input: 0 0% 11%;
@@ -195,10 +213,12 @@ All colors MUST be HSL.
 }
 @layer utilities {
   .glow-profit-inner {
-    box-shadow: inset 0 0 15px 0px hsla(var(--profit), 0.4);
+    box-shadow: inset 0 0 15px 0px var(--profit-color);
+    opacity: 0.4;
   }
   .glow-loss-inner {
-    box-shadow: inset 0 0 15px 0px hsla(var(--loss), 0.4);
+    box-shadow: inset 0 0 15px 0px var(--loss-color);
+    opacity: 0.4;
   }
 }
 
@@ -232,9 +252,57 @@ All colors MUST be HSL.
 
 /* Nuevos gradientes para celdas de calendario */
 .bg-calendar-profit {
-  background: radial-gradient(circle at center, var(--calendar-profit-gradient-start), var(--calendar-profit-gradient-end) 70%), hsl(var(--card));
+  background: radial-gradient(circle at center, var(--calendar-profit-bg), transparent 70%), hsl(var(--card));
+  opacity: 0.15;
 }
 
 .bg-calendar-loss {
-  background: radial-gradient(circle at center, var(--calendar-loss-gradient-start), var(--calendar-loss-gradient-end) 70%), hsl(var(--card));
+  background: radial-gradient(circle at center, var(--calendar-loss-bg), transparent 70%), hsl(var(--card));
+  opacity: 0.15;
+}
+
+/* Clases para colores personalizables */
+.text-profit-custom {
+  color: var(--profit-color);
+}
+
+.text-loss-custom {
+  color: var(--loss-color);
+}
+
+.bg-profit-custom {
+  background-color: var(--profit-color);
+}
+
+.bg-loss-custom {
+  background-color: var(--loss-color);
+}
+
+.border-profit-custom {
+  border-color: var(--profit-color);
+}
+
+.border-loss-custom {
+  border-color: var(--loss-color);
+}
+
+.text-chart-custom {
+  color: var(--chart-color);
+}
+
+.bg-chart-custom {
+  background-color: var(--chart-color);
+}
+
+.border-chart-custom {
+  border-color: var(--chart-color);
+}
+
+/* Clases para contraste automático en calendario */
+.text-calendar-profit {
+  color: var(--calendar-profit-text-color);
+}
+
+.text-calendar-loss {
+  color: var(--calendar-loss-text-color);
 }

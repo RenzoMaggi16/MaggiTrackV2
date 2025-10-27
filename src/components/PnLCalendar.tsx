@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 
 interface Trade {
   id: string;
-  fecha: string;
+  entry_time: string;
   pnl_neto: number;
 }
 
@@ -31,9 +31,9 @@ export const PnLCalendar = () => {
       
       const { data, error } = await supabase
         .from("trades")
-        .select("id, fecha, pnl_neto")
-        .gte("fecha", startDate.toISOString())
-        .lte("fecha", endDate.toISOString());
+        .select("id, entry_time, pnl_neto")
+        .gte("entry_time", startDate.toISOString())
+        .lte("entry_time", endDate.toISOString());
       
       if (error) throw error;
       return data as Trade[];
@@ -48,7 +48,7 @@ export const PnLCalendar = () => {
     
     const pnlByDay = days.map(day => {
       const dayTrades = trades.filter(trade => 
-        isSameDay(new Date(trade.fecha), day)
+        isSameDay(new Date(trade.entry_time), day)
       );
       
       const totalPnL = dayTrades.reduce(
@@ -138,12 +138,12 @@ export const PnLCalendar = () => {
               let glowClass = "";
               
               if (isProfitable) {
-                borderClass = "border border-[hsl(var(--profit)_/_0.5)]";
-                textClass = "text-[hsl(var(--profit))]";
+                borderClass = "border border-profit-custom";
+                textClass = "text-calendar-profit";
                 glowClass = "glow-profit-inner";
               } else if (isLoss) {
-                borderClass = "border border-[hsl(var(--loss)_/_0.5)]";
-                textClass = "text-[hsl(var(--loss))]";
+                borderClass = "border border-loss-custom";
+                textClass = "text-calendar-loss";
                 glowClass = "glow-loss-inner";
               }
               

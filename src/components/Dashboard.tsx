@@ -10,8 +10,8 @@ import { useMemo } from "react";
 interface Trade {
   id: string;
   pnl_neto: number;
-  fecha: string;
-  simbolo: string;
+  entry_time: string;
+  par: string;
   reglas_cumplidas: boolean;
   emocion?: string;
 }
@@ -23,7 +23,7 @@ export const Dashboard = () => {
       const { data, error } = await supabase
         .from("trades")
         .select("*")
-        .order("fecha", { ascending: true });
+        .order("entry_time", { ascending: true });
       
       if (error) throw error;
       return data as Trade[];
@@ -66,14 +66,14 @@ export const Dashboard = () => {
     if (!trades || trades.length === 0) return [];
 
     const sortedTrades = [...trades].sort((a, b) => 
-      new Date(a.fecha).getTime() - new Date(b.fecha).getTime()
+      new Date(a.entry_time).getTime() - new Date(b.entry_time).getTime()
     );
 
     let runningPnl = 0;
     return sortedTrades.map(trade => {
       runningPnl += Number(trade.pnl_neto);
       return {
-        date: new Date(trade.fecha).toLocaleDateString(),
+        date: new Date(trade.entry_time).toLocaleDateString(),
         cumulativePnl: runningPnl,
       };
     });

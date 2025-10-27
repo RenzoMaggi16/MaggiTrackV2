@@ -27,8 +27,8 @@ import {
 
 interface Trade {
   id: string;
-  fecha: string;
-  simbolo: string;
+  entry_time: string;
+  par: string;
   pnl_neto: number;
   entrada: number | null;
   salida: number | null;
@@ -59,7 +59,7 @@ export const TradesTable = () => {
     const { data, error } = await supabase
       .from("trades")
       .select<"*", Trade>("*") // 2. Usar genérico en el select
-      .order("fecha", { ascending: false });
+      .order("entry_time", { ascending: false });
     
     if (error) throw error;
     
@@ -109,8 +109,8 @@ export const TradesTable = () => {
   };
 
   const filteredTrades = trades.filter((trade) => {
-    const matchesSymbol = trade.simbolo.toLowerCase().includes(symbolFilter.toLowerCase());
-    const tradeDate = new Date(trade.fecha);
+    const matchesSymbol = trade.par && trade.par.toLowerCase().includes(symbolFilter.toLowerCase());
+    const tradeDate = new Date(trade.entry_time);
     const matchesStartDate = !startDate || tradeDate >= new Date(startDate);
     const matchesEndDate = !endDate || tradeDate <= new Date(endDate);
     
@@ -124,12 +124,12 @@ export const TradesTable = () => {
           <CardTitle>Mis Trades</CardTitle>
           <div className="grid gap-4 md:grid-cols-3 pt-4">
             <div className="space-y-2">
-              <Label htmlFor="symbol-filter">Filtrar por Símbolo</Label>
+              <Label htmlFor="symbol-filter">Filtrar por Par</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="symbol-filter"
-                  placeholder="AAPL, BTC..."
+                  placeholder="EURUSD, NAS100..."
                   value={symbolFilter}
                   onChange={(e) => setSymbolFilter(e.target.value)}
                   className="bg-secondary pl-9"
@@ -173,7 +173,7 @@ export const TradesTable = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Fecha</TableHead>
-                    <TableHead>Símbolo</TableHead>
+                    <TableHead>Par</TableHead>
                     <TableHead className="text-right">PnL</TableHead>
                     <TableHead className="text-right">Entrada</TableHead>
                     <TableHead className="text-right">Salida</TableHead>
@@ -189,12 +189,12 @@ export const TradesTable = () => {
                       onClick={() => handleRowClick(trade)}
                     >
                       <TableCell className="font-medium">
-                        {format(new Date(trade.fecha), "dd/MM/yyyy HH:mm")}
+                        {format(new Date(trade.entry_time), "dd/MM/yyyy HH:mm")}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{trade.simbolo}</Badge>
+                        <Badge variant="outline">{trade.par}</Badge>
                       </TableCell>
-                      <TableCell className={`font-medium ${Number(trade.pnl_neto) > 0 ? 'text-[hsl(var(--profit))]' : 'text-[hsl(var(--loss))]'}`}>
+                      <TableCell className={`font-medium ${Number(trade.pnl_neto) > 0 ? 'text-profit-custom' : 'text-loss-custom'}`}>
                         ${Number(trade.pnl_neto).toFixed(2)}
                       </TableCell>
                       <TableCell className="text-right">
@@ -234,7 +234,7 @@ export const TradesTable = () => {
               <span>Detalles del Trade</span>
               {selectedTrade && (
                 <Badge variant="outline" className="text-lg px-3 py-1">
-                  {selectedTrade.simbolo}
+                  {selectedTrade.par}
                 </Badge>
               )}
             </DialogTitle>
@@ -250,7 +250,7 @@ export const TradesTable = () => {
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground">Fecha</h3>
-                    <p className="text-lg">{format(new Date(selectedTrade.fecha), "dd/MM/yyyy HH:mm")}</p>
+                    <p className="text-lg">{format(new Date(selectedTrade.entry_time), "dd/MM/yyyy HH:mm")}</p>
                   </div>
                   
                   <div>

@@ -37,7 +37,7 @@ const EquityChart = ({ data }: EquityChartProps) => {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div>
           <CardTitle className="text-sm font-medium text-muted-foreground">NET P&L</CardTitle>
-          <div className={`text-2xl font-bold ${finalPnl > 0 ? 'text-[hsl(var(--profit))]' : 'text-[hsl(var(--loss))]'}`}>
+          <div className={`text-2xl font-bold ${finalPnl > 0 ? 'text-profit-custom' : 'text-loss-custom'}`}>
             {currencyFormatter.format(finalPnl)}
           </div>
         </div>
@@ -48,8 +48,8 @@ const EquityChart = ({ data }: EquityChartProps) => {
             <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorPnl" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--profit))" stopOpacity={0.4}/>
-                  <stop offset="95%" stopColor="hsl(var(--profit))" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="var(--chart-color)" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="var(--chart-color)" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <XAxis dataKey="date" axisLine={false} tickLine={false} />
@@ -70,7 +70,7 @@ const EquityChart = ({ data }: EquityChartProps) => {
               <Area 
                 type="monotone" 
                 dataKey="cumulativePnl" 
-                stroke="hsl(var(--profit))" 
+                stroke="var(--chart-color)" 
                 strokeWidth={2} 
                 fillOpacity={1} 
                 fill="url(#colorPnl)" 

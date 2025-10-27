@@ -4,7 +4,7 @@ import { format } from "date-fns";
 
 interface Trade {
   pnl_neto: number;
-  fecha: string;
+  entry_time: string;
 }
 
 interface PnLChartProps {
@@ -19,7 +19,7 @@ export const PnLChart = ({ trades }: PnLChartProps) => {
     return [
       ...acc,
       {
-        date: format(new Date(trade.fecha), "dd/MM"),
+        date: format(new Date(trade.entry_time), "dd/MM"),
         total: Number(total.toFixed(2)),
       },
     ];

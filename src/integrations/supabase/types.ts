@@ -38,45 +38,129 @@ export type Database = {
         }
         Relationships: []
       }
-      trades: {
+      accounts: {
         Row: {
-          cantidad: number | null
-          created_at: string | null
-          entrada: number | null
-          fecha: string
           id: string
-          notas: string | null
-          pnl_neto: number
-          reglas_cumplidas: boolean | null
-          salida: number | null
-          simbolo: string
           user_id: string
+          account_name: string
+          account_type: 'personal' | 'funded'
+          asset_class: 'futures' | 'forex' | 'crypto' | 'stocks' | 'other'
+          initial_capital: number
+          current_capital: number
+          funding_company: string | null
+          funding_target: number | null
+          funding_phases: number | null
+          created_at: string | null
         }
         Insert: {
-          cantidad?: number | null
-          created_at?: string | null
-          entrada?: number | null
-          fecha: string
           id?: string
-          notas?: string | null
-          pnl_neto: number
-          reglas_cumplidas?: boolean | null
-          salida?: number | null
-          simbolo: string
           user_id: string
+          account_name: string
+          account_type: 'personal' | 'funded'
+          asset_class: 'futures' | 'forex' | 'crypto' | 'stocks' | 'other'
+          initial_capital: number
+          current_capital: number
+          funding_company?: string | null
+          funding_target?: number | null
+          funding_phases?: number | null
+          created_at?: string | null
         }
         Update: {
-          cantidad?: number | null
-          created_at?: string | null
-          entrada?: number | null
-          fecha?: string
           id?: string
-          notas?: string | null
-          pnl_neto?: number
-          reglas_cumplidas?: boolean | null
-          salida?: number | null
-          simbolo?: string
           user_id?: string
+          account_name?: string
+          account_type?: 'personal' | 'funded'
+          asset_class?: 'futures' | 'forex' | 'crypto' | 'stocks' | 'other'
+          initial_capital?: number
+          current_capital?: number
+          funding_company?: string | null
+          funding_target?: number | null
+          funding_phases?: number | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      trades: {
+        Row: {
+          id: string
+          user_id: string
+          account_id: string | null
+          entry_time: string | null
+          exit_time: string | null
+          par: string | null
+          pnl_neto: number
+          riesgo: number | null
+          emocion: string | null
+          trade_type: 'buy' | 'sell'
+          setup_rating: string | null
+          pre_trade_notes: string | null
+          post_trade_notes: string | null
+          strategy_id: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          account_id?: string | null
+          entry_time?: string | null
+          exit_time?: string | null
+          par?: string | null
+          pnl_neto: number
+          riesgo?: number | null
+          emocion?: string | null
+          trade_type: 'buy' | 'sell'
+          setup_rating?: string | null
+          pre_trade_notes?: string | null
+          post_trade_notes?: string | null
+          strategy_id?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          account_id?: string | null
+          entry_time?: string | null
+          exit_time?: string | null
+          par?: string | null
+          pnl_neto?: number
+          riesgo?: number | null
+          emocion?: string | null
+          trade_type?: 'buy' | 'sell'
+          setup_rating?: string | null
+          pre_trade_notes?: string | null
+          post_trade_notes?: string | null
+          strategy_id?: string | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          id: string
+          user_id: string
+          profit_color_hex: string
+          loss_color_hex: string
+          background_color_hex: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          profit_color_hex?: string
+          loss_color_hex?: string
+          background_color_hex?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          profit_color_hex?: string
+          loss_color_hex?: string
+          background_color_hex?: string
+          created_at?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }

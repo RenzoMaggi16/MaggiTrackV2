@@ -10,8 +10,8 @@ import { Navbar } from "@/components/Navbar";
 
 interface Trade {
   id: string;
-  fecha: string;
-  simbolo: string;
+  entry_time: string;
+  par: string;
   pnl_neto: number;
   entrada: number | null;
   salida: number | null;
@@ -105,7 +105,7 @@ const TradeDetail = () => {
             <div className="flex items-center justify-between">
               <CardTitle>Detalles del Trade</CardTitle>
               <Badge variant="outline" className="text-lg px-3 py-1">
-                {trade.simbolo}
+                {trade.par}
               </Badge>
             </div>
           </CardHeader>
@@ -114,7 +114,7 @@ const TradeDetail = () => {
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground">Fecha</h3>
-                  <p className="text-lg">{format(new Date(trade.fecha), "dd/MM/yyyy HH:mm")}</p>
+                  <p className="text-lg">{format(new Date(trade.entry_time), "dd/MM/yyyy HH:mm")}</p>
                 </div>
                 
                 <div>

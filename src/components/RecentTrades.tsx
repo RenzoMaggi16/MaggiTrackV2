@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 
 interface Trade {
   id: string;
-  fecha: string;
-  simbolo: string;
+  entry_time: string;
+  par: string;
   pnl_neto: number;
 }
 
@@ -17,8 +17,8 @@ export const RecentTrades = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("trades")
-        .select("id, fecha, simbolo, pnl_neto")
-        .order("fecha", { ascending: false })
+        .select("id, entry_time, par, pnl_neto")
+        .order("entry_time", { ascending: false })
         .limit(5);
       
       if (error) throw error;
@@ -45,20 +45,20 @@ export const RecentTrades = () => {
                 key={trade.id} 
                 className={`p-3 rounded-lg border ${
                   Number(trade.pnl_neto) > 0 
-                    ? 'border-[hsl(var(--profit)_/_0.3)] bg-[hsl(var(--profit)_/_0.05)]' 
-                    : 'border-[hsl(var(--loss)_/_0.3)] bg-[hsl(var(--loss)_/_0.05)]'
+                    ? 'border-profit-custom bg-[var(--profit-color)]/5' 
+                    : 'border-loss-custom bg-[var(--loss-color)]/5'
                 }`}
               >
                 <div className="flex justify-between items-center">
-                  <Badge variant="outline">{trade.simbolo}</Badge>
+                  <Badge variant="outline">{trade.par}</Badge>
                   <span className={`font-semibold ${
-                    Number(trade.pnl_neto) > 0 ? 'text-[hsl(var(--profit))]' : 'text-[hsl(var(--loss))]'
+                    Number(trade.pnl_neto) > 0 ? 'text-profit-custom' : 'text-loss-custom'
                   }`}>
                     ${Number(trade.pnl_neto).toFixed(2)}
                   </span>
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  {format(new Date(trade.fecha), "dd/MM/yyyy HH:mm")}
+                  {format(new Date(trade.entry_time), "dd/MM/yyyy HH:mm")}
                 </div>
               </div>
             ))}

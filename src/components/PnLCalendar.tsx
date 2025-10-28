@@ -134,21 +134,15 @@ export const PnLCalendar = () => {
               
               // Determinar los estilos condicionales
               let borderClass = "border border-border";
-              let textClass = "text-muted-foreground";
-              let glowClass = "";
               
               if (isProfitable) {
                 borderClass = "border border-profit-custom";
-                textClass = "text-calendar-profit";
-                glowClass = "glow-profit-inner";
               } else if (isLoss) {
                 borderClass = "border border-loss-custom";
-                textClass = "text-calendar-loss";
-                glowClass = "glow-loss-inner";
               }
               
               return (
-                <div className={`rounded-md ${borderClass} ${glowClass} flex flex-col justify-between p-1 h-24 w-full ${hasPnL ? (dayPnL.pnl >= 0 ? 'bg-calendar-profit' : 'bg-calendar-loss') : 'bg-card'}`}>
+                <div className={`rounded-md ${borderClass} flex flex-col justify-between p-1 h-24 w-full ${hasPnL ? (dayPnL.pnl >= 0 ? 'bg-calendar-profit' : 'bg-calendar-loss') : 'bg-card'}`}>
                   {/* Número del día en la esquina superior derecha */}
                   <div className="self-end">
                     {isCurrentDay ? (
@@ -165,11 +159,11 @@ export const PnLCalendar = () => {
                   {/* Contenido del PnL */}
                   <div className="flex-grow flex items-center justify-center">
                     {hasPnL ? (
-                      <span className={`text-sm font-medium ${textClass}`}>
+                      <span className="text-sm font-medium text-white">
                         ${Math.abs(dayPnL.pnl).toFixed(2)}
                       </span>
                     ) : (
-                      isCurrentMonth && <span className="text-xs text-primary/30">Sin Trade</span>
+                      isCurrentMonth && <span className="text-xs text-muted-foreground">Sin Trade</span>
                     )}
                   </div>
                 </div>

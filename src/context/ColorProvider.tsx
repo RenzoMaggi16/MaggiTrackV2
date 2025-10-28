@@ -7,8 +7,6 @@ type ColorPreferences = {
   profit: string;
   loss: string;
   chart: string;
-  calendarProfitText: string;
-  calendarLossText: string;
 };
 
 type ColorProviderState = {
@@ -20,9 +18,7 @@ type ColorProviderState = {
 const defaultColors: ColorPreferences = {
   profit: '#28a745',
   loss: '#dc3545',
-  chart: '#28a745',
-  calendarProfitText: '#FFFFFF',
-  calendarLossText: '#FFFFFF'
+  chart: '#28a745'
 };
 
 const ColorProviderContext = createContext<ColorProviderState>({
@@ -49,7 +45,7 @@ export function ColorProvider({ children }: { children: React.ReactNode }) {
 
         const { data: preferences, error } = await supabase
           .from('user_preferences')
-          .select('profit_color_hex, loss_color_hex, chart_color_hex, calendar_profit_text_hex, calendar_loss_text_hex')
+          .select('profit_color_hex, loss_color_hex, chart_color_hex')
           .eq('user_id', user.id)
           .single();
 
@@ -62,9 +58,7 @@ export function ColorProvider({ children }: { children: React.ReactNode }) {
           const userColors = {
             profit: preferences.profit_color_hex || defaultColors.profit,
             loss: preferences.loss_color_hex || defaultColors.loss,
-            chart: preferences.chart_color_hex || defaultColors.chart,
-            calendarProfitText: preferences.calendar_profit_text_hex || defaultColors.calendarProfitText,
-            calendarLossText: preferences.calendar_loss_text_hex || defaultColors.calendarLossText
+            chart: preferences.chart_color_hex || defaultColors.chart
           };
           setColors(userColors);
         } else {
@@ -116,11 +110,6 @@ export function ColorProvider({ children }: { children: React.ReactNode }) {
     // Colores de fondo del calendario (siguen derivados)
     root.style.setProperty('--calendar-profit-bg', hexToRgba(colors.profit, 0.3));
     root.style.setProperty('--calendar-loss-bg', hexToRgba(colors.loss, 0.3));
-
-    // --- Colores de TEXTO del calendario (AHORA DESDE EL ESTADO) ---
-    root.style.setProperty('--calendar-profit-text-color', colors.calendarProfitText); 
-    root.style.setProperty('--calendar-loss-text-color', colors.calendarLossText);
-    // --- FIN ---
   }, [colors]);
 
   const value = {

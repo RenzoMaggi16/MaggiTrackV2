@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { TrendingUp, LogOut, BrainCircuit, BookOpen, BookText, Wallet, Settings } from "lucide-react";
+import { TrendingUp, LogOut, BrainCircuit, Settings, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
 import { ThemeToggle } from "./ThemeToggle";
 import { Link } from "react-router-dom";
@@ -27,28 +27,16 @@ export const Navbar = () => {
           </div>
           
           <div className="flex items-center space-x-2">
+            <Link to="/">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <LayoutDashboard className="h-4 w-4" />
+                Dashboard
+              </Button>
+            </Link>
             <Link to="/analisis">
               <Button variant="ghost" size="sm" className="gap-2">
                 <BrainCircuit className="h-4 w-4" />
                 Análisis IA
-              </Button>
-            </Link>
-            <Link to="/reglas">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <BookOpen className="h-4 w-4" />
-                Mis Reglas
-              </Button>
-            </Link>
-            <Link to="/estrategias">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <BookText className="h-4 w-4" />
-                Estrategias
-              </Button>
-            </Link>
-            <Link to="/cuentas">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <Wallet className="h-4 w-4" />
-                Cuentas
               </Button>
             </Link>
             <Link to="/configuracion">

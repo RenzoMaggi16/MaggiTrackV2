@@ -211,16 +211,6 @@ All colors MUST be HSL.
     background-attachment: fixed;
   }
 }
-@layer utilities {
-  .glow-profit-inner {
-    box-shadow: inset 0 0 15px 0px var(--profit-color);
-    opacity: 0.4;
-  }
-  .glow-loss-inner {
-    box-shadow: inset 0 0 15px 0px var(--loss-color);
-    opacity: 0.4;
-  }
-}
 
 @layer utilities {
   .glow-profitt {
@@ -253,12 +243,12 @@ All colors MUST be HSL.
 /* Nuevos gradientes para celdas de calendario */
 .bg-calendar-profit {
   background: radial-gradient(circle at center, var(--calendar-profit-bg), transparent 70%), hsl(var(--card));
-  opacity: 0.15;
+
 }
 
 .bg-calendar-loss {
   background: radial-gradient(circle at center, var(--calendar-loss-bg), transparent 70%), hsl(var(--card));
-  opacity: 0.15;
+
 }
 
 /* Clases para colores personalizables */

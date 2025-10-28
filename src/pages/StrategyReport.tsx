@@ -7,15 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, BrainCircuit, TrendingUp, AlertTriangle, Target, Activity } from 'lucide-react';
-import { LineChart, Line, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 import { useToast } from "@/components/ui/use-toast";
 import { PnLCalendar } from "@/components/PnLCalendar";
+import { WinRateDonutChart } from "@/components/charts/WinRateDonutChart";
 
 interface StrategyStats {
   realized_win_pct: number;
   rules_followed_win_pct: number;
   current_streak: number;
   most_broken_rule: string;
+  winning_trades: number;
+  losing_trades: number;
+  breakeven_trades: number;
 }
 
 interface PerformanceData {
@@ -51,6 +55,7 @@ const StrategyReport = () => {
   const [radarData, setRadarData] = useState<RadarChartData[]>([]);
   const [brokenRules, setBrokenRules] = useState<BrokenRule[]>([]);
   const [calendarData, setCalendarData] = useState<CalendarHeatmapData[]>([]);
+  const [pnlByHourData, setPnlByHourData] = useState<any[]>([]);
   const [aiAnalysis, setAiAnalysis] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -101,6 +106,16 @@ const StrategyReport = () => {
         const calendarData = prepareCalendarData(trades || []);
         setCalendarData(calendarData);
 
+        // Obtener PnL por hora
+        const { data: pnlByHour, error: pnlByHourError } = await supabase
+          .rpc('get_pnl_by_hour', { strategy_id_param: strategyId });
+        
+        if (pnlByHourError) {
+          console.error("Error obteniendo PnL por hora:", pnlByHourError);
+        } else {
+          setPnlByHourData(pnlByHour || []);
+        }
+
       } catch (error: any) {
         console.error("Error cargando datos del reporte:", error);
         toast({
@@ -122,12 +137,17 @@ const StrategyReport = () => {
         realized_win_pct: 0,
         rules_followed_win_pct: 0,
         current_streak: 0,
-        most_broken_rule: 'N/A'
+        most_broken_rule: 'N/A',
+        winning_trades: 0,
+        losing_trades: 0,
+        breakeven_trades: 0
       };
     }
 
     const totalTrades = trades.length;
     const wins = trades.filter(t => t.pnl_neto > 0).length;
+    const losses = trades.filter(t => t.pnl_neto < 0).length;
+    const breakeven = trades.filter(t => t.pnl_neto === 0).length;
     const realizedWinPct = (wins / totalTrades) * 100;
 
     // Reglas seguidas
@@ -174,7 +194,10 @@ const StrategyReport = () => {
       realized_win_pct: realizedWinPct,
       rules_followed_win_pct: rulesFollowedWinPct,
       current_streak: currentStreak,
-      most_broken_rule: mostBrokenRule
+      most_broken_rule: mostBrokenRule,
+      winning_trades: wins,
+      losing_trades: losses,
+      breakeven_trades: breakeven
     };
   };
 
@@ -343,14 +366,15 @@ const StrategyReport = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Realized Win %</CardTitle>
+              <CardTitle className="text-sm font-medium">Win Rate</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {stats?.realized_win_pct.toFixed(1)}%
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Tasa de acierto general</p>
+            <CardContent className="pt-4">
+              <WinRateDonutChart 
+                wins={stats?.winning_trades || 0}
+                losses={stats?.losing_trades || 0}
+                breakeven={stats?.breakeven_trades || 0}
+              />
             </CardContent>
           </Card>
 
@@ -442,6 +466,42 @@ const StrategyReport = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Gráfico de PnL por Hora */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>PnL Neto por Hora del Día (UTC)</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={pnlByHourData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))"/>
+                <XAxis 
+                  dataKey="hour_of_day" 
+                  tickFormatter={(hour) => `${hour}:00`} 
+                  stroke="hsl(var(--muted-foreground))"
+                />
+                <YAxis stroke="hsl(var(--muted-foreground))"/>
+                <Tooltip
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))', 
+                    border: '1px solid hsl(var(--border))' 
+                  }}
+                  labelFormatter={(label) => `Hora ${label}:00`}
+                  formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'PnL Neto']}
+                />
+                <Bar dataKey="total_pnl" fill="var(--chart-color)">
+                  {pnlByHourData.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.total_pnl >= 0 ? 'var(--profit-color)' : 'var(--loss-color)'} 
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
         {/* Análisis de Reglas */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">

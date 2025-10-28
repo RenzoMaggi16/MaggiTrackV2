@@ -6,30 +6,28 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Settings as SettingsIcon, Save, Palette } from "lucide-react";
 import { ChromePicker } from 'react-color';
 import { useToast } from "@/components/ui/use-toast";
+import MisReglas from './MisReglas';
+import ManageStrategies from './ManageStrategies';
+import ManageAccounts from './ManageAccounts';
 
 interface UserPreferences {
   profit_color_hex: string;
   loss_color_hex: string;
   chart_color_hex: string;
-  calendar_profit_text_hex: string;
-  calendar_loss_text_hex: string;
 }
 
 const Settings = () => {
   const [profitColor, setProfitColor] = useState('#28a745');
   const [lossColor, setLossColor] = useState('#dc3545');
   const [chartColor, setChartColor] = useState('#28a745');
-  const [calendarProfitText, setCalendarProfitText] = useState('#FFFFFF');
-  const [calendarLossText, setCalendarLossText] = useState('#FFFFFF');
   const [initialColors, setInitialColors] = useState({ 
     profit: '', 
     loss: '', 
-    chart: '',
-    calendarProfitText: '',
-    calendarLossText: ''
+    chart: ''
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -58,7 +56,7 @@ const Settings = () => {
         // Buscar preferencias del usuario
         const { data: preferences, error: prefError } = await supabase
           .from('user_preferences')
-          .select('profit_color_hex, loss_color_hex, chart_color_hex, calendar_profit_text_hex, calendar_loss_text_hex')
+          .select('profit_color_hex, loss_color_hex, chart_color_hex')
           .eq('user_id', user.id)
           .single();
 
@@ -75,23 +73,17 @@ const Settings = () => {
           setProfitColor(preferences.profit_color_hex || '#28a745');
           setLossColor(preferences.loss_color_hex || '#dc3545');
           setChartColor(preferences.chart_color_hex || '#28a745');
-          setCalendarProfitText(preferences.calendar_profit_text_hex || '#FFFFFF');
-          setCalendarLossText(preferences.calendar_loss_text_hex || '#FFFFFF');
           setInitialColors({
             profit: preferences.profit_color_hex || '#28a745',
             loss: preferences.loss_color_hex || '#dc3545',
-            chart: preferences.chart_color_hex || '#28a745',
-            calendarProfitText: preferences.calendar_profit_text_hex || '#FFFFFF',
-            calendarLossText: preferences.calendar_loss_text_hex || '#FFFFFF'
+            chart: preferences.chart_color_hex || '#28a745'
           });
         } else {
           // Usar colores por defecto
           setInitialColors({
             profit: '#28a745',
             loss: '#dc3545',
-            chart: '#28a745',
-            calendarProfitText: '#FFFFFF',
-            calendarLossText: '#FFFFFF'
+            chart: '#28a745'
           });
         }
 
@@ -116,9 +108,7 @@ const Settings = () => {
     // Verificar si hay cambios
     if (profitColor === initialColors.profit && 
         lossColor === initialColors.loss && 
-        chartColor === initialColors.chart &&
-        calendarProfitText === initialColors.calendarProfitText &&
-        calendarLossText === initialColors.calendarLossText) {
+        chartColor === initialColors.chart) {
       toast({
         title: "Información",
         description: "No hay cambios para guardar",
@@ -136,8 +126,6 @@ const Settings = () => {
           profit_color_hex: profitColor,
           loss_color_hex: lossColor,
           chart_color_hex: chartColor,
-          calendar_profit_text_hex: calendarProfitText,
-          calendar_loss_text_hex: calendarLossText,
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
 
@@ -154,9 +142,7 @@ const Settings = () => {
       setInitialColors({ 
         profit: profitColor, 
         loss: lossColor, 
-        chart: chartColor,
-        calendarProfitText: calendarProfitText,
-        calendarLossText: calendarLossText
+        chart: chartColor
       });
 
       // Aplicar colores inmediatamente
@@ -179,8 +165,6 @@ const Settings = () => {
     root.style.setProperty('--profit-color', profitColor);
     root.style.setProperty('--loss-color', lossColor);
     root.style.setProperty('--chart-color', chartColor);
-    root.style.setProperty('--calendar-profit-text-color', calendarProfitText);
-    root.style.setProperty('--calendar-loss-text-color', calendarLossText);
   };
 
   const ColorPicker = ({ 
@@ -246,147 +230,147 @@ const Settings = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center space-x-3 mb-8">
           <SettingsIcon className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Configuración de Apariencia</h1>
+          <h1 className="text-3xl font-bold">Configuración</h1>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <div 
-                  className="w-4 h-4 rounded mr-2"
-                  style={{ backgroundColor: profitColor }}
-                />
-                Color de Ganancia
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ColorPicker
-                color={profitColor}
-                onChange={setProfitColor}
-                label="Color de Ganancia (Profit)"
-                description="Este color se usará para mostrar ganancias positivas"
-              />
-            </CardContent>
-          </Card>
+        <Accordion type="single" collapsible className="w-full">
+          {/* Item 1: Apariencia */}
+          <AccordionItem value="item-1">
+            <AccordionTrigger className="text-xl font-medium">
+              Apariencia
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <div 
+                        className="w-4 h-4 rounded mr-2"
+                        style={{ backgroundColor: profitColor }}
+                      />
+                      Color de Ganancia
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ColorPicker
+                      color={profitColor}
+                      onChange={setProfitColor}
+                      label="Color de Ganancia (Profit)"
+                      description="Este color se usará para mostrar ganancias positivas"
+                    />
+                  </CardContent>
+                </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <div 
-                  className="w-4 h-4 rounded mr-2"
-                  style={{ backgroundColor: lossColor }}
-                />
-                Color de Pérdida
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ColorPicker
-                color={lossColor}
-                onChange={setLossColor}
-                label="Color de Pérdida (Loss)"
-                description="Este color se usará para mostrar pérdidas"
-              />
-            </CardContent>
-          </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <div 
+                        className="w-4 h-4 rounded mr-2"
+                        style={{ backgroundColor: lossColor }}
+                      />
+                      Color de Pérdida
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ColorPicker
+                      color={lossColor}
+                      onChange={setLossColor}
+                      label="Color de Pérdida (Loss)"
+                      description="Este color se usará para mostrar pérdidas"
+                    />
+                  </CardContent>
+                </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <div 
-                  className="w-4 h-4 rounded mr-2"
-                  style={{ backgroundColor: chartColor }}
-                />
-                Color de Gráficos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ColorPicker
-                color={chartColor}
-                onChange={setChartColor}
-                label="Color de Gráficos"
-                description="Este color se usará en los gráficos y visualizaciones"
-              />
-            </CardContent>
-          </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <div 
+                        className="w-4 h-4 rounded mr-2"
+                        style={{ backgroundColor: chartColor }}
+                      />
+                      Color de Gráficos
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ColorPicker
+                      color={chartColor}
+                      onChange={setChartColor}
+                      label="Color de Gráficos"
+                      description="Este color se usará en los gráficos y visualizaciones"
+                    />
+                  </CardContent>
+                </Card>
+              </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <div 
-                  className="w-4 h-4 rounded mr-2"
-                  style={{ backgroundColor: calendarProfitText }}
-                />
-                Texto Ganancia
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ColorPicker
-                color={calendarProfitText}
-                onChange={setCalendarProfitText}
-                label="Color Texto Ganancia (Calendario)"
-                description="Color del texto para días con ganancia en el calendario"
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <div 
-                  className="w-4 h-4 rounded mr-2"
-                  style={{ backgroundColor: calendarLossText }}
-                />
-                Texto Pérdida
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ColorPicker
-                color={calendarLossText}
-                onChange={setCalendarLossText}
-                label="Color Texto Pérdida (Calendario)"
-                description="Color del texto para días con pérdida en el calendario"
-              />
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center">
           <div className="text-sm text-muted-foreground">
-            Los cambios se aplicarán inmediatamente después de guardar
-          </div>
-          <Button 
-            onClick={handleSave} 
-            disabled={isSaving}
-            className="min-w-[140px]"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            {isSaving ? 'Guardando...' : 'Guardar Cambios'}
-          </Button>
-        </div>
-
-        {/* Vista previa de los colores */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Vista Previa</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="p-4 rounded-md space-y-2 border bg-card">
-              <div className="flex justify-between items-center">
-                <span style={{ color: 'hsl(var(--foreground))' }}>Ganancia:</span> 
-                <span style={{ color: calendarProfitText, fontWeight: 'bold' }}>+$1,250.00</span> 
+                Los cambios se aplicarán inmediatamente después de guardar
               </div>
-              <div className="flex justify-between items-center">
-                <span style={{ color: 'hsl(var(--foreground))' }}>Pérdida:</span> 
-                <span style={{ color: calendarLossText, fontWeight: 'bold' }}>-$750.00</span> 
-              </div>
-              <div className="flex justify-between items-center mt-4">
-                <span style={{ color: 'hsl(var(--foreground))' }}>Color de Gráficos:</span>
-                <div className="w-6 h-6 rounded border" style={{ backgroundColor: chartColor }}></div>
-              </div>
+              <Button 
+                onClick={handleSave} 
+                disabled={isSaving}
+                className="min-w-[140px]"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Vista previa de los colores */}
+            <Card className="mt-8">
+              <CardHeader>
+                <CardTitle>Vista Previa</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="p-4 rounded-md space-y-2 border bg-card">
+                  <div className="flex justify-between items-center">
+                    <span style={{ color: 'hsl(var(--foreground))' }}>Color de Ganancia:</span>
+                    <div className="w-6 h-6 rounded border" style={{ backgroundColor: profitColor }}></div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span style={{ color: 'hsl(var(--foreground))' }}>Color de Pérdida:</span>
+                    <div className="w-6 h-6 rounded border" style={{ backgroundColor: lossColor }}></div>
+                  </div>
+                  <div className="flex justify-between items-center mt-4">
+                    <span style={{ color: 'hsl(var(--foreground))' }}>Color de Gráficos:</span>
+                    <div className="w-6 h-6 rounded border" style={{ backgroundColor: chartColor }}></div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Item 2: Mis Reglas */}
+          <AccordionItem value="item-2">
+            <AccordionTrigger className="text-xl font-medium">
+              Mis Reglas
+            </AccordionTrigger>
+            <AccordionContent>
+              <MisReglas />
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Item 3: Estrategias */}
+          <AccordionItem value="item-3">
+            <AccordionTrigger className="text-xl font-medium">
+              Gestionar Estrategias
+            </AccordionTrigger>
+            <AccordionContent>
+              <ManageStrategies />
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Item 4: Cuentas */}
+          <AccordionItem value="item-4">
+            <AccordionTrigger className="text-xl font-medium">
+              Gestionar Cuentas
+            </AccordionTrigger>
+            <AccordionContent>
+              <ManageAccounts />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </main>
     </div>
   );

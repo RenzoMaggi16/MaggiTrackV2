@@ -17,12 +17,13 @@ type Account = Tables<'accounts'>;
 
 interface FormData {
   account_name: string;
-  account_type: 'personal' | 'funded';
+  account_type: 'personal' | 'evaluation' | 'live';
   asset_class: 'futures' | 'forex' | 'crypto' | 'stocks' | 'other';
   initial_capital: number;
   funding_company: string;
-  funding_target: number;
-  funding_phases: number;
+  funding_phases: number; // 1 o 2 para evaluación
+  funding_target_1: number; // objetivo fase 1
+  funding_target_2: number; // objetivo fase 2 (opcional)
 }
 
 const ManageAccounts = () => {
@@ -36,8 +37,9 @@ const ManageAccounts = () => {
     asset_class: 'futures',
     initial_capital: 0,
     funding_company: '',
-    funding_target: 0,
     funding_phases: 1,
+    funding_target_1: 0,
+    funding_target_2: 0,
   });
 
   // Cargar cuentas al montar el componente
@@ -83,8 +85,9 @@ const ManageAccounts = () => {
       asset_class: 'futures',
       initial_capital: 0,
       funding_company: '',
-      funding_target: 0,
       funding_phases: 1,
+      funding_target_1: 0,
+      funding_target_2: 0,
     });
   };
 
@@ -93,12 +96,13 @@ const ManageAccounts = () => {
       setEditingAccount(account);
       setFormData({
         account_name: account.account_name,
-        account_type: account.account_type,
+        account_type: account.account_type === 'funded' ? 'evaluation' : 'personal',
         asset_class: account.asset_class,
         initial_capital: account.initial_capital,
         funding_company: account.funding_company || '',
-        funding_target: account.funding_target || 0,
         funding_phases: account.funding_phases || 1,
+        funding_target_1: account.funding_target || 0,
+        funding_target_2: 0,
       });
     } else {
       setEditingAccount(null);
@@ -127,25 +131,40 @@ const ManageAccounts = () => {
         return;
       }
 
-      if (formData.account_type === 'funded') {
+      if (formData.account_type === 'evaluation') {
         if (!formData.funding_company.trim()) {
-          toast.error("La empresa de funding es requerida para cuentas funded");
+          toast.error("La empresa de funding es requerida para Evaluación");
           return;
         }
-        if (formData.funding_target <= 0) {
-          toast.error("El objetivo de funding debe ser mayor a 0");
+        if (formData.funding_phases !== 1 && formData.funding_phases !== 2) {
+          toast.error("Selecciona 1 o 2 fases");
+          return;
+        }
+        if (formData.funding_target_1 <= 0) {
+          toast.error("Objetivo Fase 1 debe ser mayor a 0");
+          return;
+        }
+        if (formData.funding_phases === 2 && formData.funding_target_2 <= 0) {
+          toast.error("Objetivo Fase 2 debe ser mayor a 0");
+          return;
+        }
+      }
+
+      if (formData.account_type === 'live') {
+        if (!formData.funding_company.trim()) {
+          toast.error("La empresa de funding es requerida para Live");
           return;
         }
       }
 
       const accountData = {
         account_name: formData.account_name.trim(),
-        account_type: formData.account_type,
+        account_type: (formData.account_type === 'evaluation' || formData.account_type === 'live') ? 'funded' : 'personal',
         asset_class: formData.asset_class,
         initial_capital: formData.initial_capital,
-        funding_company: formData.account_type === 'funded' ? formData.funding_company.trim() : null,
-        funding_target: formData.account_type === 'funded' ? formData.funding_target : null,
-        funding_phases: formData.account_type === 'funded' ? formData.funding_phases : null,
+        funding_company: (formData.account_type === 'evaluation' || formData.account_type === 'live') ? formData.funding_company.trim() : null,
+        funding_target: formData.account_type === 'evaluation' ? formData.funding_target_1 : null,
+        funding_phases: formData.account_type === 'evaluation' ? formData.funding_phases : null,
       };
 
       if (editingAccount) {
@@ -290,17 +309,22 @@ const ManageAccounts = () => {
                 <Label>Tipo de Cuenta *</Label>
                 <RadioGroup
                   value={formData.account_type}
-                  onValueChange={(value: 'personal' | 'funded') => 
+                  onValueChange={(value: 'personal' | 'evaluation' | 'live') => 
                     setFormData({ ...formData, account_type: value })
                   }
+                  className="flex space-x-4"
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="personal" id="personal" />
                     <Label htmlFor="personal">Personal</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="funded" id="funded" />
-                    <Label htmlFor="funded">Funded</Label>
+                    <RadioGroupItem value="evaluation" id="evaluation" />
+                    <Label htmlFor="evaluation">Evaluación (Prueba)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="live" id="live" />
+                    <Label htmlFor="live">Fondeada (Live)</Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -339,48 +363,66 @@ const ManageAccounts = () => {
                 />
               </div>
 
-              {formData.account_type === 'funded' && (
+              {(formData.account_type === 'evaluation' || formData.account_type === 'live') && (
+                <div className="grid gap-2">
+                  <Label htmlFor="funding_company">Empresa de Fondeo *</Label>
+                  <Input
+                    id="funding_company"
+                    value={formData.funding_company}
+                    onChange={(e) => setFormData({ ...formData, funding_company: e.target.value })}
+                    placeholder="Ej: Apex, Topstep"
+                  />
+                </div>
+              )}
+
+              {formData.account_type === 'evaluation' && (
                 <>
                   <div className="grid gap-2">
-                    <Label htmlFor="funding_company">Empresa de Funding *</Label>
-                    <Input
-                      id="funding_company"
-                      value={formData.funding_company}
-                      onChange={(e) => setFormData({ ...formData, funding_company: e.target.value })}
-                      placeholder="Ej: FTMO, MyForexFunds"
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="funding_target">Objetivo de Funding *</Label>
-                    <Input
-                      id="funding_target"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formData.funding_target}
-                      onChange={(e) => setFormData({ ...formData, funding_target: parseFloat(e.target.value) || 0 })}
-                      placeholder="0.00"
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label>Fases de Funding *</Label>
+                    <Label>Fases de Evaluación</Label>
                     <RadioGroup
                       value={formData.funding_phases.toString()}
-                      onValueChange={(value) => 
-                        setFormData({ ...formData, funding_phases: parseInt(value) })
-                      }
+                      onValueChange={(value) => setFormData({ ...formData, funding_phases: parseInt(value) })}
+                      className="flex space-x-4"
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="1" id="phases_1" />
-                        <Label htmlFor="phases_1">1 Fase</Label>
+                        <RadioGroupItem value="1" id="fase1" />
+                        <Label htmlFor="fase1">1 Fase</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="2" id="phases_2" />
-                        <Label htmlFor="phases_2">2 Fases</Label>
+                        <RadioGroupItem value="2" id="fase2" />
+                        <Label htmlFor="fase2">2 Fases</Label>
                       </div>
                     </RadioGroup>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="funding_target_1">Objetivo Fase 1 ($)</Label>
+                      <Input
+                        id="funding_target_1"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={formData.funding_target_1}
+                        onChange={(e) => setFormData({ ...formData, funding_target_1: parseFloat(e.target.value) || 0 })}
+                        placeholder="Ej: 6000"
+                      />
+                    </div>
+
+                    {formData.funding_phases === 2 && (
+                      <div className="grid gap-2">
+                        <Label htmlFor="funding_target_2">Objetivo Fase 2 ($)</Label>
+                        <Input
+                          id="funding_target_2"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={formData.funding_target_2}
+                          onChange={(e) => setFormData({ ...formData, funding_target_2: parseFloat(e.target.value) || 0 })}
+                          placeholder="Ej: 3000"
+                        />
+                      </div>
+                    )}
                   </div>
                 </>
               )}

@@ -5,9 +5,10 @@ import { TrendingUp, TrendingDown, Activity, Smile } from "lucide-react";
 import { PnLCalendar } from "./PnLCalendar";
 import { RecentTrades } from "./RecentTrades";
 import EquityChart from "./EquityChart";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { WinRateDonutChart } from "@/components/charts/WinRateDonutChart";
 import { EmotionalStateIndicator } from "@/components/EmotionalStateIndicator";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 interface Trade {
   id: string;
@@ -19,6 +20,15 @@ interface Trade {
 }
 
 export const Dashboard = () => {
+  const getCssVar = (name: string, fallback: string) => {
+    if (typeof window === "undefined") return fallback;
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  };
+
+  const profitColor = getCssVar("--profit-color", "#22c55e");
+  const lossColor = getCssVar("--loss-color", "#ef4444");
+
   const { data: trades = [] } = useQuery({
     queryKey: ["trades"],
     queryFn: async () => {
@@ -38,6 +48,20 @@ export const Dashboard = () => {
       const { data, error } = await (supabase as any).rpc("get_overall_stats");
       if (error) throw error;
       return data as { winning_trades: number; losing_trades: number; breakeven_trades: number; most_frequent_emotion?: string } | null;
+    },
+  });
+
+  const { data: pnlByHourData = [] } = useQuery({
+    queryKey: ["pnlByHour"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("get_pnl_by_hour");
+      if (error) throw error;
+      const hourlyMap = new Map((data || []).map((item: any) => [item.hour_of_day, item.total_pnl]));
+      const fullHourlyData = Array.from({ length: 24 }, (_, i) => ({
+        hour_of_day: i,
+        total_pnl: hourlyMap.get(i) || 0,
+      }));
+      return fullHourlyData;
     },
   });
 
@@ -110,9 +134,52 @@ export const Dashboard = () => {
       
       {/* Sección inferior: Gráfico y estadísticas */}
       <div className="bottom-section-container flex flex-col gap-6">
-        {/* Fila 1: El Gráfico */}
-        <div className="chart-wrapper min-h-[300px]">
+        {/* Fila 1: Gráficos en grilla (NET P&L y PnL por Hora) */}
+        <div className="grid grid-cols-1 gap-6">
           <EquityChart data={equityCurveData} />
+
+          <Card>
+            <CardHeader>
+              <CardTitle>PnL por Hora (UTC)</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={pnlByHourData as any} margin={{ top: 10, right: 0, left: 10, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+                  <XAxis
+                    dataKey="hour_of_day"
+                    tickFormatter={(hour) => `${hour}h`}
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={10}
+                    interval={0}
+                    angle={-45}
+                    textAnchor="end"
+                    height={50}
+                  />
+                  <YAxis
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={10}
+                    domain={["dataMin", "dataMax"]}
+                    width={60}
+                    tickFormatter={(value) => `$${value}`}
+                  />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }}
+                    itemStyle={{ color: "hsl(var(--foreground))" }}
+                    labelStyle={{ color: "hsl(var(--foreground))" }}
+                    cursor={{ fill: "hsl(var(--foreground))", fillOpacity: 0.08 }}
+                    labelFormatter={(label) => `Hora ${label}:00`}
+                    formatter={(value: number) => [Number(value).toFixed(2), "PnL Neto"]}
+                  />
+                  <Bar dataKey="total_pnl">
+                    {(pnlByHourData as any[]).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.total_pnl >= 0 ? profitColor : lossColor} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
         </div>
         
         {/* Fila 2: El nuevo contenedor para las estadísticas */}

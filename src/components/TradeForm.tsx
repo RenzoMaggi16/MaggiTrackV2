@@ -12,10 +12,11 @@ import { Combobox } from "@/components/ui/combobox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AccountFormDialog } from "@/components/AccountFormDialog";
 
 // --- Types (Define these properly if you have them elsewhere) ---
 interface Strategy {
@@ -77,6 +78,7 @@ export const TradeForm = () => {
   // Estados para cuentas
   const [accounts, setAccounts] = useState<any[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(undefined);
+  const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
 
   // Estado unificado para otros campos del formulario
   const [formData, setFormData] = useState({
@@ -139,9 +141,7 @@ export const TradeForm = () => {
     fetchStrategies();
   }, []); // Dependencia vacía para ejecutar solo al montar
 
-  // Efecto para cargar las cuentas del usuario
-  useEffect(() => {
-    const fetchAccounts = async () => {
+  const fetchAccounts = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       
@@ -157,7 +157,10 @@ export const TradeForm = () => {
       } else {
         setAccounts(data || []);
       }
-    };
+  };
+
+  // Efecto para cargar las cuentas del usuario
+  useEffect(() => {
     fetchAccounts();
   }, []);
 
@@ -346,22 +349,33 @@ export const TradeForm = () => {
           {/* Selector de Cuenta */}
           <div className="space-y-2">
             <Label htmlFor="account-select">Cuenta *</Label>
-            <Select
-              value={selectedAccountId}
-              onValueChange={(value) => setSelectedAccountId(value)}
-              required
-            >
-              <SelectTrigger id="account-select" className="bg-secondary">
-                <SelectValue placeholder="Seleccionar cuenta..." />
-              </SelectTrigger>
-              <SelectContent>
-                {accounts.map((account) => (
-                  <SelectItem key={account.id} value={account.id}>
-                    {account.account_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <Select
+                value={selectedAccountId}
+                onValueChange={(value) => setSelectedAccountId(value)}
+                required
+              >
+                <SelectTrigger id="account-select" className="bg-secondary flex-grow">
+                  <SelectValue placeholder="Seleccionar cuenta..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.account_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => setIsAccountDialogOpen(true)}
+                aria-label="Añadir nueva cuenta"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Fila Fecha y Horas */}
@@ -552,6 +566,16 @@ export const TradeForm = () => {
             {loading ? "Guardando..." : "Registrar Operación"}
           </Button>
         </form>
+
+        <AccountFormDialog
+          isOpen={isAccountDialogOpen}
+          onOpenChange={setIsAccountDialogOpen}
+          onSaveSuccess={(newAccount) => {
+            fetchAccounts();
+            if (newAccount?.id) setSelectedAccountId(newAccount.id);
+            setIsAccountDialogOpen(false);
+          }}
+        />
       </CardContent>
     </Card>
   );

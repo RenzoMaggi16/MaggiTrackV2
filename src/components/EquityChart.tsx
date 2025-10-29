@@ -32,6 +32,8 @@ const EquityChart = ({ data }: EquityChartProps) => {
     currency: 'USD', 
   }); 
 
+  const chartKey = `${data.length}-${finalPnl}`;
+
   return ( 
     <Card className="border-border">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -44,19 +46,29 @@ const EquityChart = ({ data }: EquityChartProps) => {
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <ResponsiveContainer key={chartKey} width="100%" height="100%">
+            <AreaChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
               <defs>
                 <linearGradient id="colorPnl" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="var(--chart-color)" stopOpacity={0.4}/>
                   <stop offset="95%" stopColor="var(--chart-color)" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <XAxis dataKey="date" axisLine={false} tickLine={false} />
+              <XAxis 
+                dataKey="date" 
+                axisLine={false} 
+                tickLine={false} 
+                fontSize={10}
+                tick={{ fill: 'hsl(var(--muted-foreground))' }}
+              />
               <YAxis 
                 dataKey="cumulativePnl" 
                 axisLine={false} 
                 tickLine={false}
+                domain={["dataMin", "dataMax"]}
+                width={70}
+                fontSize={10}
+                tick={{ fill: 'hsl(var(--muted-foreground))' }}
                 tickFormatter={(value) => currencyFormatter.format(value)}
               />
               <Tooltip 

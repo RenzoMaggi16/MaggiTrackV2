@@ -6,13 +6,15 @@ import { PnLCalendar } from "./PnLCalendar";
 import { RecentTrades } from "./RecentTrades";
 import EquityChart from "./EquityChart";
 import { useMemo } from "react";
+import { WinRateDonutChart } from "@/components/charts/WinRateDonutChart";
+import { EmotionalStateIndicator } from "@/components/EmotionalStateIndicator";
 
 interface Trade {
   id: string;
   pnl_neto: number;
   entry_time: string;
   par: string;
-  reglas_cumplidas: boolean;
+  reglas_cumplidas?: boolean;
   emocion?: string;
 }
 
@@ -27,6 +29,15 @@ export const Dashboard = () => {
       
       if (error) throw error;
       return data as Trade[];
+    },
+  });
+
+  const { data: overallStats } = useQuery({
+    queryKey: ["overallStats"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("get_overall_stats");
+      if (error) throw error;
+      return data as { winning_trades: number; losing_trades: number; breakeven_trades: number; most_frequent_emotion?: string } | null;
     },
   });
 
@@ -105,33 +116,30 @@ export const Dashboard = () => {
         </div>
         
         {/* Fila 2: El nuevo contenedor para las estadísticas */}
-        <div className="stats-container flex justify-between items-stretch gap-5">
-          <Card className="flex-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Tasa de Acierto
-              </CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {metrics.winRate.toFixed(1)}%
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Win rate general
-              </p>
-            </CardContent>
-          </Card>
+        <div className="stats-container grid grid-cols-1 md:grid-cols-3 gap-6">
+          {overallStats && (
+            <Card className="flex flex-col items-center justify-center p-4 min-h-[250px]">
+              <CardHeader className="p-0 pb-2">
+                <CardTitle className="text-sm font-medium text-center">Tasa de Acierto</CardTitle>
+              </CardHeader>
+              <CardContent className="w-full flex flex-col items-center justify-center p-0 pb-4">
+                <WinRateDonutChart
+                  wins={overallStats.winning_trades || 0}
+                  losses={overallStats.losing_trades || 0}
+                  breakeven={overallStats.breakeven_trades || 0}
+                />
+              </CardContent>
+            </Card>
+          )}
 
-          <Card className="flex-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+          <Card className="flex flex-col items-center justify-center p-4 min-h-[250px]">
+            <CardHeader className="p-0 pb-2">
+              <CardTitle className="text-sm font-medium text-center text-muted-foreground">
                 Cumplimiento de Reglas
               </CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="w-full flex flex-col items-center justify-center p-0">
+              <div className="text-5xl font-bold">
                 {metrics.ruleComplianceRate.toFixed(1)}%
               </div>
               <p className="text-xs text-muted-foreground">
@@ -140,22 +148,11 @@ export const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="flex-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Emoción Frecuente
-              </CardTitle>
-              <Smile className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {metrics.emocionFrecuente}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Basado en tus trades
-              </p>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col">
+            {overallStats && (
+              <EmotionalStateIndicator emotion={overallStats.most_frequent_emotion || "Neutral"} className="min-h-[250px]" />
+            )}
+          </div>
         </div>
       </div>
     </div>

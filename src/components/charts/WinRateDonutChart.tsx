@@ -38,7 +38,7 @@ export const WinRateDonutChart = ({ wins = 0, losses = 0, breakeven = 0 }: WinRa
   }
 
   return (
-    <div className="relative w-full h-48">
+    <div className="relative w-full h-[180px] flex flex-col items-center justify-between">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -65,7 +65,7 @@ export const WinRateDonutChart = ({ wins = 0, losses = 0, breakeven = 0 }: WinRa
         </PieChart>
       </ResponsiveContainer>
       {/* Leyenda */}
-      <div className="flex justify-center gap-4 text-xs mt-2 text-muted-foreground">
+      <div className="flex justify-center gap-12 text-xs mt-2 text-muted-foreground">
         <span className="flex items-center gap-1">
           <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: profitColor }}></span>
           W: {wins}

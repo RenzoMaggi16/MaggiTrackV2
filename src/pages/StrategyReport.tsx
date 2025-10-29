@@ -364,17 +364,17 @@ const StrategyReport = () => {
 
         {/* Métricas Clave - Grid de 4 columnas */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Win Rate</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <Card className="flex flex-col items-center justify-center p-4">
+            <CardHeader className="p-0 pb-2">
+              <CardTitle className="text-sm font-medium text-center">Trade Win %</CardTitle>
             </CardHeader>
-            <CardContent className="pt-4">
+            <CardContent className="w-full flex flex-col items-center justify-center p-0">
               <WinRateDonutChart 
                 wins={stats?.winning_trades || 0}
                 losses={stats?.losing_trades || 0}
                 breakeven={stats?.breakeven_trades || 0}
               />
+              <p className="text-xs text-muted-foreground mt-2">Win rate general</p>
             </CardContent>
           </Card>
 

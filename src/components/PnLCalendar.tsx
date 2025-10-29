@@ -142,9 +142,9 @@ export const PnLCalendar = () => {
               }
               
               return (
-                <div className={`rounded-md ${borderClass} flex flex-col justify-between p-1 h-24 w-full ${hasPnL ? (dayPnL.pnl >= 0 ? 'bg-calendar-profit' : 'bg-calendar-loss') : 'bg-card'}`}>
+              <div className={`rounded-md ${borderClass} relative flex items-center justify-center flex-col p-1 h-24 w-full ${hasPnL ? (dayPnL.pnl >= 0 ? 'bg-calendar-profit' : 'bg-calendar-loss') : 'bg-card'}`}>
                   {/* Número del día en la esquina superior derecha */}
-                  <div className="self-end">
+                  <div className="absolute top-1 right-1">
                     {isCurrentDay ? (
                       <span className="flex items-center justify-center bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs">
                         {format(date, "d")}
@@ -157,7 +157,7 @@ export const PnLCalendar = () => {
                   </div>
                   
                   {/* Contenido del PnL */}
-                  <div className="flex-grow flex items-center justify-center">
+                  <div className="flex items-center justify-center">
                     {hasPnL ? (
                       <span className="text-sm font-medium text-white">
                         ${Math.abs(dayPnL.pnl).toFixed(2)}

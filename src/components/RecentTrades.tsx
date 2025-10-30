@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
 
 interface Trade {
   id: string;
@@ -63,9 +64,9 @@ export const RecentTrades = () => {
               </div>
             ))}
             <div className="text-center pt-2">
-              <a href="#" className="text-xs text-primary hover:underline hover:text-primary/80">
+              <Link to="/trades" className="text-xs text-primary hover:underline hover:text-primary/80">
                 Ver Más
-              </a>
+              </Link>
             </div>
           </div>
         )}

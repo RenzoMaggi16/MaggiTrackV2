@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Wallet } from "lucide-react";
+import { Plus, Pencil, Trash2, Wallet, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 // Usar tipos de Supabase
@@ -440,6 +441,7 @@ const ManageAccounts = () => {
         </Dialog>
       </div>
 
+      <div className="mx-auto max-w-5xl">
       {accounts.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
@@ -455,7 +457,7 @@ const ManageAccounts = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 justify-items-center">
           {accounts.map((account) => (
             <Card key={account.id} className="relative">
               <CardHeader className="pb-3">
@@ -544,6 +546,15 @@ const ManageAccounts = () => {
           ))}
         </div>
       )}
+      </div>
+
+      <div className="mt-8 text-center">
+        <Link to="/">
+          <Button variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Volver al Dashboard
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 };

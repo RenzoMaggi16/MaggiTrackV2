@@ -159,7 +159,7 @@ export const PnLCalendar = () => {
                   {/* Contenido del PnL */}
                   <div className="flex items-center justify-center">
                     {hasPnL ? (
-                      <span className="text-sm font-medium text-white">
+                      <span className="text-sm font-medium">
                         ${Math.abs(dayPnL.pnl).toFixed(2)}
                       </span>
                     ) : (

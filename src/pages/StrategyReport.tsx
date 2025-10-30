@@ -341,8 +341,8 @@ const StrategyReport = () => {
           <div className="text-center">
             <h1 className="text-2xl font-bold text-destructive mb-4">Error</h1>
             <p className="text-muted-foreground">ID de estrategia no encontrado.</p>
-            <Link to="/estrategias" className="inline-flex items-center mt-4 text-primary hover:underline">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Volver a Estrategias
+            <Link to="/" className="inline-flex items-center mt-4 text-primary hover:underline">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Volver al Dashboard
             </Link>
           </div>
         </main>
@@ -355,8 +355,8 @@ const StrategyReport = () => {
       <Navbar />
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
-          <Link to="/estrategias" className="inline-flex items-center text-primary hover:underline">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Volver a Estrategias
+          <Link to="/" className="inline-flex items-center text-primary hover:underline">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Volver al Dashboard
           </Link>
         </div>
         

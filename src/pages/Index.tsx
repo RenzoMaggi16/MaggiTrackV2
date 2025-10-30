@@ -7,7 +7,8 @@ import { TradesTable } from "@/components/TradesTable";
 import { Navbar } from "@/components/Navbar";
 import { WelcomeMessage } from "@/components/WelcomeMessage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3, Plus, Table } from "lucide-react";
+import { BarChart3, Plus, Table, FileBarChart } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const [session, setSession] = useState<any>(null);
@@ -45,7 +46,7 @@ const Index = () => {
       <Navbar />
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-4">
             <TabsTrigger value="dashboard" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               Dashboard
@@ -57,6 +58,11 @@ const Index = () => {
             <TabsTrigger value="history" className="gap-2">
               <Table className="h-4 w-4" />
               Trades
+            </TabsTrigger>
+            <TabsTrigger value="reportes" className="gap-2" asChild>
+              <Link to="/reportes">
+                <span className="inline-flex items-center gap-2"><FileBarChart className="h-4 w-4" /> Reportes</span>
+              </Link>
             </TabsTrigger>
           </TabsList>
 

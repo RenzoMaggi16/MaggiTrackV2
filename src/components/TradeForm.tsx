@@ -492,7 +492,7 @@ export const TradeForm = () => {
           {/* Sección Reglas Rotas (Dinámica) */}
           {selectedStrategyId && (
             <div className="space-y-3 pt-4">
-              <Label className="font-semibold text-lg">Reglas de la Estrategia (Marca las que rompiste)</Label>
+              <Label className="font-semibold text-lg">Reglas de la Estrategia (Marca las que cumpliste)</Label>
               {loadingRules ? (
                 <p>Cargando reglas...</p>
               ) : rulesForStrategy.length === 0 ? (
@@ -503,10 +503,10 @@ export const TradeForm = () => {
                     <div key={rule.id} className="flex items-center space-x-3">
                       <Checkbox
                         id={`rule-${rule.id}`}
-                        checked={brokenRuleIds.includes(rule.id)}
+                        checked={!brokenRuleIds.includes(rule.id)}
                         onCheckedChange={(checked) => {
                           setBrokenRuleIds((prev) =>
-                            checked ? [...prev, rule.id] : prev.filter((id) => id !== rule.id)
+                            !checked ? [...prev, rule.id] : prev.filter((id) => id !== rule.id)
                           );
                         }}
                       />
